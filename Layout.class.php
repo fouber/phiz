@@ -6,13 +6,18 @@ class Layout extends View {
      * @var Layout
      */
     private $_parent = null;
-    
+
+    /**
+     * @param $id
+     * @return $this
+     */
     public function extend($id){
         if($this->_parent === null){
             $this->_parent = new self($id);
         } else {
             fis_error_reporter('unable to extend multiple layouts');
         }
+        return $this;
     }
 
     /**
