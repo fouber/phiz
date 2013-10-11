@@ -41,7 +41,6 @@ layout.php
 ```php
 <?php
     $this
-      ->extend('layout.php')
       ->input($title, 'string', 'untitled')
       ->input($body, 'Block');
 ?>
