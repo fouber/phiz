@@ -1,26 +1,53 @@
 <?php
 
 class Resource {
-    
+
+    /**
+     *
+     */
     const MAP_EXT = '.json';
-    
+
+    /**
+     * @var string
+     */
     private static $_map_dir;
+
+    /**
+     * @var array
+     */
     private static $_maps = array();
+
+    /**
+     * @var array
+     */
     private static $_collection = array();
-    
-    public static function init(){
+
+    /**
+     *
+     */
+    public static function reset(){
         self::$_maps = array();
         self::$_collection = array();
     }
-    
+
+    /**
+     * @param string $map_dir
+     */
     public static function setMapDir($map_dir){
         self::$_map_dir = $map_dir;
     }
-    
+
+    /**
+     * @return string
+     */
     public static function getMapDir(){
         return self::$_map_dir;
     }
-    
+
+    /**
+     * @param string $id
+     * @return string
+     */
     private static function getNamespace($id){
         $pos = strpos($id, ':');
         if($pos === false){
@@ -29,7 +56,13 @@ class Resource {
             return substr($id, 0, $pos);
         }
     }
-    
+
+    /**
+     * @param $id
+     * @param &$ns
+     * @param &$map
+     * @return mixed
+     */
     public static function getInfo($id, &$ns = null, &$map = null){
         $ns = self::getNamespace($id);
         if(isset(self::$_maps[$ns])){
@@ -55,5 +88,10 @@ class Resource {
             }
         }
         return $map['res'][$id];
+    }
+
+    public static function import($id, $async = false){
+        //todo
+        return $id;
     }
 }

@@ -1,7 +1,10 @@
 <?php
 
 class Layout extends View {
-    
+
+    /**
+     * @var Layout
+     */
     private $_parent = null;
     
     public function extend($id){
@@ -11,7 +14,11 @@ class Layout extends View {
             fis_error_reporter('unable to extend multiple layouts');
         }
     }
-    
+
+    /**
+     * @param $id
+     * @return Block|null
+     */
     public function block($id){
         if(self::$_template_dir){
             $__uri__ = $this->uri($id);
@@ -26,9 +33,13 @@ class Layout extends View {
         } else {
             fis_error_reporter('undefined template dir');
         }
+        return null;
     }
-    
-    public function fetch(&$__defined_vars__ = null){
+
+    /**
+     * @return string
+     */
+    public function fetch(){
         $content = parent::fetch($__defined_vars__);
         if($this->_parent){
             if($content){

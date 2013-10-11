@@ -6,39 +6,89 @@ function fis_error_reporter($msg){
 }
 
 class View {
-    
+
+    /**
+     * @var string
+     */
     protected static $_template_dir;
-    
+
+    /**
+     * @var array
+     */
     private static $_types = array('string','int','bool','float','array');
-    
+
+    /**
+     * @var string
+     */
     protected $_scope = 'protected';
+
+    /**
+     * @var string
+     */
     protected $_namespace;
+
+    /**
+     * @var string
+     */
     protected $_id;
+
+    /**
+     * @var string
+     */
     protected $_uri;
+
+    /**
+     * @var array
+     */
     protected $_context = array();
-    
+
+    /**
+     * @param string $id
+     */
     public function __construct($id){
         $this->_id = $id;
         $this->_uri = $this->uri($id, $this->_namespace);
     }
-    
+
+    /**
+     * @param string $template_dir
+     */
     public static function setTemplateDir($template_dir){
         self::$_template_dir = $template_dir;
     }
-    
+
+    /**
+     * @return string
+     */
     public static function getTemplateDir(){
         return self::$_template_dir;
     }
-    
+
+    /**
+     * @param $id
+     * @param &$ns
+     * @param &$map
+     * @return string|null
+     */
     public function uri($id, &$ns = null, &$map = null){
         $info = Resource::getInfo($id, $ns, $map);
         return isset($info['uri']) ? $info['uri'] : null;
     }
-    
+
+    /**
+     * @param string $id
+     * @param bool $async
+     * @return string
+     */
     public function import($id, $async = false){
         return Resource::import($id, $async);
     }
-    
+
+    /**
+     * @param mixed $value
+     * @param string $type
+     * @return bool
+     */
     protected static function typeCheck($value, $type) {
         if(in_array($type, self::$_types)) {
             if($type === 'array') {
@@ -63,7 +113,11 @@ class View {
             }
         }
     }
-    
+
+    /**
+     * @param &$stack
+     * @return mixed
+     */
     protected function getInputVarName(&$stack){
         $stacks = debug_backtrace();
         $stack = $stacks[1];
@@ -74,8 +128,15 @@ class View {
             preg_match('/\$this\s*->\s*input\s*\(\s*(\$[a-zA-Z_][a-zA-Z_0-9]*)/', $line, $matches);
             return $matches[1];
         }
+        return null;
     }
-    
+
+    /**
+     * @param mixed &$input
+     * @param string $type
+     * @param mixed $default
+     * @return $this
+     */
     public function input(&$input, $type, $default = null){
         if($input === NULL && $default !== null){
             $input = $default;
@@ -100,10 +161,14 @@ class View {
             }
             fis_error_reporter("Input type mismatch, expected: '$type', actual:'$passed'.");
         }
-        
-        return $input;
+        return $this;
     }
-    
+
+    /**
+     * @param string $property
+     * @param mixed $value
+     * @return $this
+     */
     public function assign($property, $value = null){
         if(is_string($property)){
             $this->_context[$property] = $value;
@@ -112,15 +177,25 @@ class View {
         }
         return $this;
     }
-    
+
+    /**
+     * @param string $type
+     */
     public function scope($type){
         $this->_scope = $type;
     }
-    
+
+    /**
+     * @return string
+     */
     public function __toString(){
         return $this->fetch();
     }
-    
+
+    /**
+     * @param &$__defined_vars__
+     * @return string
+     */
     public function fetch(&$__defined_vars__ = null){
         if(self::$_template_dir){
             if($this->_uri){
@@ -135,8 +210,12 @@ class View {
         } else {
             fis_error_reporter('undefined template dir');
         }
+        return '';
     }
-    
+
+    /**
+     *
+     */
     public function display(){
         echo $this->fetch();
     }
