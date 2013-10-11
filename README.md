@@ -6,11 +6,8 @@ PHP Template Engine
 set template dir & resource map dir.
 
 ```php
-
-$dir = dirname(__FILE__);
-View::setTemplateDir($dir);
-Resource::setMapDir($dir);
-
+View::setTemplateDir('path/to/template/dir');
+Resource::setMapDir('path/to/resource/map/dir');
 ```
 
 ## Quick Start
