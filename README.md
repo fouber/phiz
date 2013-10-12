@@ -44,6 +44,6 @@ $view
 * [append](https://github.com/fouber/x-view-demo/blob/master/page.php#L27-L29)
 * [prepend](https://github.com/fouber/x-view-demo/blob/master/page.php#L23-L25)
 
-## Dependencies
+## Tools
 
 * [fis](https://github.com/fis-dev/fis)
