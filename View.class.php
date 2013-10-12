@@ -201,18 +201,19 @@ class View {
     }
 
     /**
-     * @param &$__defined_vars__
+     * @param mixed &$__defined_vars__
      * @return string
      */
-    public function fetch(&$__defined_vars__ = null){
+    protected function loadTempalte(&$__defined_vars__ = null){
         if(self::$_template_dir){
             if($this->_uri){
                 ob_start();
-                extract($this->_context);
-                include self::$_template_dir . '/' . $this->_uri;
-                $__defined_vars__ = get_defined_vars();
-                if($this->_deps){
-                    Resource::import($this->_id);
+                try {
+                    extract($this->_context);
+                    include self::$_template_dir . '/' . $this->_uri;
+                    $__defined_vars__ = get_defined_vars();
+                } catch(Exception $e) {
+                    fis_error_reporter($e);
                 }
                 return ob_get_clean();
             } else {
@@ -222,6 +223,22 @@ class View {
             fis_error_reporter('undefined template dir');
         }
         return '';
+    }
+    
+    protected function loadResource(){
+        if($this->_deps){
+            Resource::import($this->_id);
+        }
+    }
+
+    /**
+     * @param &$defined_vars
+     * @return string
+     */
+    public function fetch(&$defined_vars = null){
+        $content = $this->loadTempalte($defined_vars);
+        $this->loadResource();
+        return $content;
     }
 
     /**

@@ -128,7 +128,7 @@ class Resource {
         }
     }
 
-    public static function render($type){
+    public static function render($type, $reset = true){
         $html = '';
         if(!empty(self::$_collection[$type])){
             $uris = self::$_collection[$type];
@@ -141,6 +141,9 @@ class Resource {
                 $html  = '<link rel="stylesheet" type="text/css" href="';
                 $html .= implode('"/>' . $lf . '<link rel="stylesheet" type="text/css" href="', $uris);
                 $html .= '"/>' . $lf;
+            }
+            if($reset){
+                self::$_collection[$type] = array();
             }
         }
         return $html;
