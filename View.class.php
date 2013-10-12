@@ -91,14 +91,6 @@ class View {
     public function import($id, $async = false){
         return Resource::import($id, $async);
     }
-    
-    public function css(){
-        return Resource::render('css');
-    }
-    
-    public function js(){
-        return Resource::render('js');
-    }
 
     /**
      * @param mixed $value

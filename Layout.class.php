@@ -30,6 +30,14 @@ class Layout extends View {
         return new Block($block->fetch());
     }
 
+    public function css(){
+        return Resource::render('css');
+    }
+
+    public function js(){
+        return Resource::render('js');
+    }
+
     /**
      * @return string
      */

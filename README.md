@@ -22,35 +22,20 @@ $view
   ->display();
 ```
 
-## Layout
+## View
 
-index.php
+* [require static](https://github.com/fouber/x-view-demo/blob/master/test.php#L3)
+* [check input](https://github.com/fouber/x-view-demo/blob/master/layout.php#L5-L10)
 
-```php
-<?php
-    $this
-        ->extend('layout.php')
-        ->input($word, 'string');
-    $title = 'page title';
-?>
-<h1><?php echo $word; ?></h1>
-```
+## Layout extend View
 
-layout.php
+* [extend](https://github.com/fouber/x-view-demo/blob/master/test.php#L5)
+* [load block file](https://github.com/fouber/x-view-demo/blob/master/layout.php#L10)
+* [render css](https://github.com/fouber/x-view-demo/blob/master/layout.php#L15)
+* [render js](https://github.com/fouber/x-view-demo/blob/master/layout.php#L28)
 
-```php
-<?php
-    $this
-      ->input($title, 'string', 'untitled')
-      ->input($body, 'Block');
-?>
-<!doctype html>
-<html>
-<head>
-    <title><?php echo $title; ?></title>
-</head>
-<body>
-    <?php echo $body; ?>
-</body>
-</html>
-```
+## Block
+
+* [fill](https://github.com/fouber/x-view-demo/blob/master/test.php#L15-L21)
+* [append](https://github.com/fouber/x-view-demo/blob/master/test.php#L27-L29)
+* [prepend](https://github.com/fouber/x-view-demo/blob/master/test.php#L23-L25)
