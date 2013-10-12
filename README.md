@@ -1,6 +1,10 @@
 PHP Template Engine
 =======
 
+## Demo
+
+* [x-view-demo](https://github.com/fouber/x-view-demo)
+
 ## init
 
 set template dir & resource map dir.
@@ -39,3 +43,7 @@ $view
 * [fill](https://github.com/fouber/x-view-demo/blob/master/page.php#L15-L21)
 * [append](https://github.com/fouber/x-view-demo/blob/master/page.php#L27-L29)
 * [prepend](https://github.com/fouber/x-view-demo/blob/master/page.php#L23-L25)
+
+## Dependencies
+
+* [fis](https://github.com/fis-dev/fis)
