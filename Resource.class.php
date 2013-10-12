@@ -20,14 +20,22 @@ class Resource {
     /**
      * @var array
      */
-    private static $_collection = array();
+    private static $_collection = array(
+        'js' => array(),
+        'css' => array()
+    );
+
+    private static $_imported = array();
 
     /**
      *
      */
     public static function reset(){
         self::$_maps = array();
-        self::$_collection = array();
+        self::$_collection = array(
+            'js' => array(),
+            'css' => array()
+        );
     }
 
     /**
@@ -91,7 +99,50 @@ class Resource {
     }
 
     public static function import($id, $async = false){
-        //todo
-        return $id;
+        if(isset(self::$_imported[$id])){
+            return self::$_imported[$id];
+        } else {
+            $info = self::getInfo($id, $ns, $map);
+            if($info){
+                $uri = $info['uri'];
+                $type = $info['type'];
+                if(isset($info['pkg'])){
+                    $info = $map['pkg'][$info['pkg']];
+                    $uri = $info['uri'];
+                    foreach($info['has'] as $rId){
+                        self::$_imported[$rId] = $uri;
+                    }
+                } else {
+                    self::$_imported[$id] = $uri;
+                }
+                if(isset($info['deps'])){
+                    foreach($info['deps'] as $dId){
+                        self::import($dId);
+                    }
+                }
+                self::$_collection[$type][] = $uri;
+                return $uri;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public static function render($type){
+        $html = '';
+        if(!empty(self::$_collection[$type])){
+            $uris = self::$_collection[$type];
+            $lf = "\n";
+            if($type === 'js'){
+                $html  = '<script type="text/javascript" src="';
+                $html .= implode('"></script>' . $lf . '<script type="text/javascript" src="', $uris);
+                $html .= '"></script>' . $lf;
+            } else if($type === 'css'){
+                $html  = '<link rel="stylesheet" type="text/css" href="';
+                $html .= implode('"/>' . $lf . '<link rel="stylesheet" type="text/css" href="', $uris);
+                $html .= '"/>' . $lf;
+            }
+        }
+        return $html;
     }
 }

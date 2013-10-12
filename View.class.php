@@ -40,6 +40,11 @@ class View {
     /**
      * @var array
      */
+    protected $_deps;
+
+    /**
+     * @var array
+     */
     protected $_context = array();
 
     /**
@@ -47,7 +52,11 @@ class View {
      */
     public function __construct($id){
         $this->_id = $id;
-        $this->_uri = $this->uri($id, $this->_namespace);
+        $info = Resource::getInfo($id, $this->_namespace);
+        $this->_uri = $info['uri'];
+        if(isset($info['deps'])){
+            $this->_deps = $info['deps'];
+        }
     }
 
     /**
@@ -65,14 +74,13 @@ class View {
     }
 
     /**
-     * @param $id
-     * @param &$ns
-     * @param &$map
-     * @return string|null
+     * @param string $id
+     * @param string &$ns
+     * @return mixed
      */
-    public function uri($id, &$ns = null, &$map = null){
-        $info = Resource::getInfo($id, $ns, $map);
-        return isset($info['uri']) ? $info['uri'] : null;
+    public function uri($id, &$ns = null){
+        $info = Resource::getInfo($id, $ns);
+        return $info['uri'];
     }
 
     /**
@@ -82,6 +90,14 @@ class View {
      */
     public function import($id, $async = false){
         return Resource::import($id, $async);
+    }
+    
+    public function css(){
+        return Resource::render('css');
+    }
+    
+    public function js(){
+        return Resource::render('js');
     }
 
     /**
@@ -203,6 +219,9 @@ class View {
                 extract($this->_context);
                 include self::$_template_dir . '/' . $this->_uri;
                 $__defined_vars__ = get_defined_vars();
+                if($this->_deps){
+                    Resource::import($this->_id);
+                }
                 return ob_get_clean();
             } else {
                 fis_error_reporter('unable to load template file [' . $this->_id . '] in [' . self::$_template_dir . ']');
