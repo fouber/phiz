@@ -25,20 +25,9 @@ class Layout extends View {
      * @return Block|null
      */
     public function block($id){
-        if(self::$_template_dir){
-            $__uri__ = $this->uri($id);
-            if($__uri__){
-                ob_start();
-                extract($this->_context);
-                include self::$_template_dir . '/' . $__uri__;
-                return new Block(ob_get_clean());
-            } else {
-                fis_error_reporter('unable to load block file [' . $this->_id . '] in [' . self::$_template_dir . ']');
-            }
-        } else {
-            fis_error_reporter('undefined template dir');
-        }
-        return null;
+        $block = new self($id);
+        $block->assign($this->_context);
+        return new Block($block->fetch());
     }
 
     /**
