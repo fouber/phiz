@@ -29,8 +29,12 @@ class Layout extends View {
      */
     public function block($id){
         $block = new self($id);
-        $block->assign($this->_context);
+        $block->setContext($this->_context);
         return new Block($block->fetch());
+    }
+    
+    public function widget($id){
+        return  Widget::factory($id);
     }
 
     /**

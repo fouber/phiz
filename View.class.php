@@ -45,6 +45,11 @@ class View {
     /**
      * @var array
      */
+    protected $_info;
+
+    /**
+     * @var array
+     */
     protected $_context = array();
 
     /**
@@ -52,7 +57,7 @@ class View {
      */
     public function __construct($id){
         $this->_id = $id;
-        $info = Resource::getInfo($id, $this->_namespace);
+        $this->_info = $info = Resource::getInfo($id, $this->_namespace);
         $this->_uri = $info['uri'];
         if(isset($info['deps'])){
             $this->_deps = $info['deps'];
@@ -173,6 +178,24 @@ class View {
     }
 
     /**
+     * @return array
+     */
+    protected function getContext(){
+        return $this->_context;
+    }
+
+    /**
+     * @param array $context
+     */
+    protected function setContext($context){
+        if(is_array($context)){
+            $this->_context = $context;
+        } else {
+            fis_error_reporter('invalid context data');
+        }
+    }
+
+    /**
      * @param string $property
      * @param mixed $value
      * @return $this
@@ -181,7 +204,11 @@ class View {
         if(is_string($property)){
             $this->_context[$property] = $value;
         } else if(is_array($property)){
-            $this->_context = array_merge($this->_context, $property);
+            foreach($property as $k => $v){
+                $this->assign($k, $v);
+            }
+        } else {
+            fis_error_reporter('invalid assign data');
         }
         return $this;
     }
@@ -228,6 +255,7 @@ class View {
     protected function loadResource(){
         if($this->_deps){
             Resource::import($this->_id);
+            unset($this->_deps);
         }
     }
 
