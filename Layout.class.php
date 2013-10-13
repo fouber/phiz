@@ -16,7 +16,7 @@ class Layout extends View {
      */
     public function extend($id){
         if($this->_parent === null){
-            $this->_parent = new self($id);
+            $this->_parent = new self($id, $this->_namespace);
         } else {
             fis_error_reporter('unable to extend multiple layouts');
         }
@@ -28,13 +28,13 @@ class Layout extends View {
      * @return Block|null
      */
     public function block($id){
-        $block = new self($id);
+        $block = new self($id, $this->_namespace);
         $block->setContext($this->_context);
         return new Block($block->fetch());
     }
     
     public function widget($id, $context = array()){
-        $widget = Widget::factory($id);
+        $widget = Widget::factory($id, $this->_namespace);
         $widget->setContext($context);
         return  $widget;
     }
@@ -73,12 +73,12 @@ class Layout extends View {
      * @return string
      */
     public function fetch(){
-        $content = $this->loadTempalte($__defined_vars__);
+        $content = $this->loadTempalte($defs);
         if($this->_parent){
             if($content){
-                $__defined_vars__['body'] = new Block($content);
+                $defs['body'] = new Block($content);
             }
-            $this->_parent->assign($__defined_vars__);
+            $this->_parent->assign($defs);
             $content = $this->_parent->fetch();
         }
         $this->loadResource();

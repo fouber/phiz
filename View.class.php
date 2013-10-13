@@ -1,6 +1,7 @@
 <?php
 
 function fis_error_reporter($msg){
+    echo ob_get_clean();
     echo ( '<h3>[ERROR] ' . $msg . '</h3>');
     die();
 }
@@ -26,6 +27,11 @@ class View {
      * @var string
      */
     protected $_namespace;
+
+    /**
+     * @var null|string
+     */
+    protected $_caller_namespace = null;
 
     /**
      * @var string
@@ -54,11 +60,16 @@ class View {
 
     /**
      * @param string $id
+     * @param string|null $caller_namespace
      */
-    public function __construct($id){
+    public function __construct($id, $caller_namespace = null){
         $this->_id = $id;
+        $this->_caller_namespace = $caller_namespace;
         $this->_info = $info = Resource::getInfo($id, $this->_namespace);
         $this->_uri = $info['uri'];
+        if($this->_namespace === 'common'){
+            $this->_scope = 'public';
+        }
         if(isset($info['deps'])){
             $this->_deps = $info['deps'];
         }
@@ -215,9 +226,34 @@ class View {
 
     /**
      * @param string $type
+     * @return bool
      */
     public function scope($type){
-        $this->_scope = $type;
+        $this->_scope = strtolower($type);
+    }
+    
+    protected function checkScope(){
+        if($this->_caller_namespace){
+            switch($this->_scope){
+                case 'private':
+                    if($this->_namespace === $this->_caller_namespace){
+                        return true;
+                    }
+                    break;
+                case 'protected':
+                    if(strpos($this->_caller_namespace . '-', $this->_namespace . '-') === 0){
+                        return true;
+                    }
+                    break;
+                case 'public':
+                    return true;
+                    break;
+                default:
+                    fis_error_reporter('unsupport scope type [' . $this->_scope . ']');
+            }
+            fis_error_reporter("unable to use [{$this->_scope}] resource [{$this->_id}]");
+        }
+        return false;
     }
 
     /**
@@ -242,6 +278,7 @@ class View {
                 } catch(Exception $e) {
                     fis_error_reporter($e);
                 }
+                $this->checkScope();
                 return ob_get_clean();
             } else {
                 fis_error_reporter('unable to load template file [' . $this->_id . '] in [' . self::$_template_dir . ']');

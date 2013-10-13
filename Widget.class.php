@@ -13,10 +13,11 @@ abstract class Widget extends View {
     private static $_loaded = array();
 
     /**
-     * @param $id
-     * @return self
+     * @param string $id
+     * @param string $namespace
+     * @return mixed
      */
-    public static function factory($id){
+    public static function factory($id, $namespace){
         if(isset(self::$_loaded[$id])){
             $clazz = self::$_loaded[$id];
         } else {
@@ -25,7 +26,7 @@ abstract class Widget extends View {
             $clazz = $info['extras']['clazz'];
             self::$_loaded[$id] = $clazz;
         }
-        return new $clazz($id);
+        return new $clazz($id, $namespace);
     }
 
     /**
@@ -59,7 +60,12 @@ abstract class Widget extends View {
      */
     public function fetch(){
         ob_start();
-        $this->tpl();
+        try {
+            $this->tpl();
+            $this->checkScope();
+        } catch(Exception $e) {
+            fis_error_reporter($e);
+        }
         $content = ob_get_clean();
         $this->loadResource();
         return $content;
