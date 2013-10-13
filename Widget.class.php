@@ -27,7 +27,12 @@ abstract class Widget extends View {
         }
         return new $clazz($id);
     }
-    
+
+    /**
+     * @param string $method
+     * @param array $arguments
+     * @return $this|mixed
+     */
     public function __call($method, $arguments){
         if(method_exists($this, $method)){
             return call_user_func_array(
