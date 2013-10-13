@@ -33,8 +33,10 @@ class Layout extends View {
         return new Block($block->fetch());
     }
     
-    public function widget($id){
-        return  Widget::factory($id);
+    public function widget($id, $context = array()){
+        $widget = Widget::factory($id);
+        $widget->setContext($context);
+        return  $widget;
     }
 
     /**
