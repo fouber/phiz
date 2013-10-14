@@ -81,7 +81,6 @@ class Layout extends View {
             $this->_parent->assign($defs);
             $content = $this->_parent->fetch();
         }
-        $this->loadResource();
         return $content;
     }
 }

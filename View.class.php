@@ -269,20 +269,17 @@ class View {
      */
     protected function loadTempalte(&$__defined_vars__ = null){
         if(self::$_template_dir){
-            if($this->_uri){
-                ob_start();
-                try {
-                    extract($this->_context);
-                    include self::$_template_dir . '/' . $this->_uri;
-                    $__defined_vars__ = get_defined_vars();
-                } catch(Exception $e) {
-                    fis_error_reporter($e);
-                }
-                $this->checkScope();
-                return ob_get_clean();
-            } else {
-                fis_error_reporter('unable to load template file [' . $this->_id . '] in [' . self::$_template_dir . ']');
+            $this->loadResource();
+            ob_start();
+            try {
+                extract($this->_context);
+                include self::$_template_dir . '/' . $this->_uri;
+                $__defined_vars__ = get_defined_vars();
+            } catch(Exception $e) {
+                fis_error_reporter($e);
             }
+            $this->checkScope();
+            return ob_get_clean();
         } else {
             fis_error_reporter('undefined template dir');
         }
@@ -302,7 +299,6 @@ class View {
      */
     public function fetch(&$defined_vars = null){
         $content = $this->loadTempalte($defined_vars);
-        $this->loadResource();
         return $content;
     }
 
