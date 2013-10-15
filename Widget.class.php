@@ -35,19 +35,18 @@ abstract class Widget extends View {
      * @return $this|mixed
      */
     public function __call($method, $arguments){
-        if(method_exists($this, $method)){
-            return call_user_func_array(
-                array( $this, $method ),
-                $arguments
-            );
-        } else {
-            if(empty($arguments)){
-                $this->_data[$method] = true;
-            } else {
-                $this->_data[$method] = $arguments[0];
+        if($method === 'widget'){
+            $widget = self::factory($arguments[0], $this->_namespace);
+            if(is_array($arguments[1])){
+                $widget->setContext($arguments[1]);
             }
-            return $this;
+            return  $widget;
+        } else if(empty($arguments)){
+            $this->_data[$method] = true;
+        } else {
+            $this->_data[$method] = $arguments[0];
         }
+        return $this;
     }
 
     /**
