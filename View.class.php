@@ -5,7 +5,7 @@
  * Time: 下午9:19
  */
 
-class View {
+abstract class View {
 
     /**
      * @var string
@@ -70,34 +70,6 @@ class View {
     }
 
     /**
-     * @var array
-     */
-    private static $_global_data = array();
-
-    /**
-     * @param string $id
-     * @param string $key
-     * @param mixed $value
-     */
-    public static function setGlobalData($id, $key, $value){
-        self::$_global_data[$id][$key] = $value;
-    }
-
-    /**
-     * @param string $id
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public static function getGlobalData($id, $key, $default = null){
-        if(isset(self::$_global_data[$id]) && isset(self::$_global_data[$id][$key])){
-            return self::$_global_data[$id][$key];
-        } else {
-            return $default;
-        }
-    }
-
-    /**
      * @param string $key
      * @param mixed $default
      * @return mixed
@@ -106,7 +78,7 @@ class View {
         if(isset($this->_data[$key])){
             return $this->_data[$key];
         } else {
-            return self::getGlobalData($this->_id, $key, $default);
+            return $default;
         }
     }
 
@@ -215,22 +187,6 @@ class View {
     }
 
     /**
-     * @param string $uri
-     * @return string
-     */
-    protected function loadTemplate($uri = null){
-        $content = '';
-        if(self::$_template_dir){
-            ob_start();
-            include self::$_template_dir . '/' . (isset($uri) ? $uri : $this->_uri);
-            $content = ob_get_clean();
-        } else {
-            trigger_error('undefined template dir', E_USER_ERROR);
-        }
-        return $content;
-    }
-
-    /**
      * 
      */
     protected function loadResource(){
@@ -241,13 +197,83 @@ class View {
     }
 
     /**
+     *
+     */
+    const CSS_PLACEHOLDER = '<!--[FIS_CSS_PLACEHOLDER]-->';
+
+    /**
+     *
+     */
+    const JS_PLACEHOLDER = '<!--[FIS_JS_PLACEHOLDER]-->';
+
+    /**
+     * @var bool
+     */
+    protected $_used_css_placeholder = false;
+
+    /**
+     * @var bool
+     */
+    protected $_used_js_placeholder = false;
+
+    /**
      * @return string
      */
     public function fetch(){
         $content = $this->loadTemplate();
         $this->checkScope();
         $this->loadResource();
+        if($this->_used_css_placeholder){
+            $pos = strpos($content, self::CSS_PLACEHOLDER);
+            if($pos !== false){
+                $content = substr_replace($content, Resource::render('css'), $pos, strlen(self::CSS_PLACEHOLDER));
+            }
+        }
+        if($this->_used_js_placeholder){
+            $pos = strrpos($content, self::JS_PLACEHOLDER);
+            if($pos !== false){
+                $content = substr_replace($content, Resource::render('js'), $pos, strlen(self::JS_PLACEHOLDER));
+            }
+        }
         return $content;
+    }
+
+    /**
+     * @return string
+     */
+    public function css(){
+        $this->_used_css_placeholder = true;
+        return self::CSS_PLACEHOLDER;
+    }
+
+    /**
+     * @return string
+     */
+    public function js(){
+        $this->_used_js_placeholder = true;
+        return self::JS_PLACEHOLDER;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function startScript($name = 'normal'){
+        Resource::startPool($name);
+    }
+
+    /**
+     *
+     */
+    public function endScript(){
+        Resource::endPool();
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function script($name = 'normal'){
+        return Resource::renderPool($name);
     }
 
     /**
@@ -256,5 +282,52 @@ class View {
     public function display(){
         echo $this->fetch();
     }
+
+    /**
+     * @var array
+     */
+    private static $_loaded_widget = array();
+
+    /**
+     * @param string $__uri__
+     * @return string
+     */
+    protected static function includeOnce($__uri__){
+        if(self::$_template_dir){
+            ob_start();
+            include_once self::$_template_dir . '/' . $__uri__;
+            return ob_get_clean();
+        } else {
+            trigger_error('undefined template dir', E_USER_ERROR);
+        }
+        return '';
+    }
+
+    /**
+     * @param string $id
+     * @return self
+     */
+    public function load($id){
+        if(self::$_loaded_widget[$id]){
+            $clazz = self::$_loaded_widget[$id];
+            return new $clazz($id, $this->_namespace);
+        } else {
+            $info = Resource::getInfo($id);
+            if(isset($info['extras']) && isset($info['extras']['clazz'])){
+                $clazz = $info['extras']['clazz'];
+                self::includeOnce($info['uri']);
+                self::$_loaded_widget[$id] = $clazz;
+                return new $clazz($id, $this->_namespace);
+            } else {
+                trigger_error('Undefined class name of widget [' . $id . ']', E_USER_ERROR);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function loadTemplate();
 
 }
