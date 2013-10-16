@@ -51,7 +51,11 @@ class View {
      * @var null|string
      */
     protected $_caller_namespace = null;
-    
+
+    /**
+     * @param string $id
+     * @param string $caller_namespace
+     */
     public function __construct($id, $caller_namespace = null){
         $this->_id = $id;
         $this->_caller_namespace = $caller_namespace;
@@ -93,6 +97,11 @@ class View {
         }
     }
 
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
     protected function input($key, $default = null){
         if(isset($this->_data[$key])){
             return $this->_data[$key];
