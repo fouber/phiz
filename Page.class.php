@@ -6,7 +6,19 @@
  */
 
 abstract class Page extends View {
-    
+
+    /**
+     * @return string
+     */
+    protected function loadTemplate(){
+        self::setPage($this);
+        return $this->buildPage();
+    }
+
+    /**
+     * @param $id
+     * @return self|null
+     */
     public static function create($id){
         $info = Resource::getInfo($id);
         if(isset($info['extras']) && isset($info['extras']['clazz'])){
@@ -17,5 +29,10 @@ abstract class Page extends View {
         trigger_error("undefined class name of page [{$id}]");
         return null;
     }
+
+    /**
+     * @return string
+     */
+    abstract protected function buildPage();
     
 }

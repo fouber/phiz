@@ -67,7 +67,13 @@ abstract class View {
         if(isset($info['deps'])){
             $this->_deps = $info['deps'];
         }
+        $this->init();
     }
+
+    /**
+     * for subclasses
+     */
+    protected function init(){}
 
     /**
      * @param string $key
@@ -321,6 +327,39 @@ abstract class View {
             } else {
                 trigger_error('Undefined class name of widget [' . $id . ']', E_USER_ERROR);
             }
+        }
+        return null;
+    }
+
+    /**
+     * @var Page
+     */
+    protected static $_page;
+
+    /**
+     * @param Page $page
+     */
+    public static function setPage(Page $page){
+        self::$_page = $page;
+    }
+
+    /**
+     * @return Page
+     */
+    public static function getPage(){
+        return self::$_page;
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @return mixed|null
+     */
+    public function getPageData($key, $default){
+        if(self::$_page){
+            return self::$_page->input($key, $default);
+        } else {
+            trigger_error('missing page instance');
         }
         return null;
     }
