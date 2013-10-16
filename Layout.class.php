@@ -92,14 +92,14 @@ class Layout extends View {
     /**
      * @param string $name
      */
-    public function start($name = 'script'){
+    public function startScript($name = 'normal'){
         Resource::startPool($name);
     }
 
     /**
      * 
      */
-    public function end(){
+    public function endScript(){
         Resource::endPool();
     }
 
@@ -107,7 +107,7 @@ class Layout extends View {
      * @param string $name
      * @return string
      */
-    public function pool($name = 'script'){
+    public function script($name = 'normal'){
         return Resource::renderPool($name);
     }
     
