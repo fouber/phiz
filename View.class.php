@@ -133,17 +133,23 @@ class View {
     public function import($id, $async = false){
         return Resource::import($id, $async);
     }
-    
-    public function assign($key, $value = null){
-        if(is_string($key)){
-            $this->_data[$key] = $value;
-        } else if(is_array($key)){
-            foreach($key as $k => $v){
+
+    /**
+     * @param string $property
+     * @param mixed $value
+     * @return $this
+     */
+    public function assign($property, $value = null){
+        if(is_string($property)){
+            $this->_data[$property] = $value;
+        } else if(is_array($property)){
+            foreach($property as $k => $v){
                 $this->assign(strval($k), $v);
             }
         } else {
-            trigger_error('invalid input type', E_USER_ERROR);
+            trigger_error('invalid assign data type', E_USER_ERROR);
         }
+        return $this;
     }
 
     /**
