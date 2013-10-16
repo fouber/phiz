@@ -88,5 +88,27 @@ class Layout extends View {
         $this->_has_js_placeholder = true;
         return self::JS_PLACEHOLDER;
     }
+
+    /**
+     * @param string $name
+     */
+    public function start($name = 'script'){
+        Resource::startPool($name);
+    }
+
+    /**
+     * 
+     */
+    public function end(){
+        Resource::endPool();
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function pool($name = 'script'){
+        return Resource::renderPool($name);
+    }
     
 }

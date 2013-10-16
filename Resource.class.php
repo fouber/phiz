@@ -148,4 +148,27 @@ class Resource {
         }
         return $html;
     }
+    
+    private static $_pool = array();
+    private static $_pool_name;
+    
+    public static function startPool($name = '__global__'){
+        if(!isset(self::$_pool[$name])){
+            self::$_pool[$name] = '';
+        }
+        self::$_pool_name = $name;
+        ob_start();
+    }
+    
+    public static function endPool(){
+        self::$_pool[self::$_pool_name] .= ob_get_clean();
+    }
+
+    public static function renderPool($name = '__global__'){
+        if(isset(self::$_pool[$name])){
+            return self::$_pool[$name];
+        } else {
+            return '';
+        }
+    }
 }
