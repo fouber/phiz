@@ -7,10 +7,24 @@
 
 class Layout extends View {
 
+    /**
+     * 
+     */
     const CSS_PLACEHOLDER = '<!--[FIS_CSS_PLACEHOLDER]-->';
+
+    /**
+     * 
+     */
     const JS_PLACEHOLDER = '<!--[FIS_JS_PLACEHOLDER]-->';
-    
+
+    /**
+     * @var bool
+     */
     protected $_has_css_placeholder = false;
+
+    /**
+     * @var bool
+     */
     protected $_has_js_placeholder = false;
 
     /**
@@ -38,7 +52,10 @@ class Layout extends View {
             }
         }
     }
-    
+
+    /**
+     * @return string
+     */
     public function fetch(){
         $content = parent::fetch();
         if($this->_has_css_placeholder){
