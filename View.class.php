@@ -337,13 +337,6 @@ abstract class View {
     protected static $_page;
 
     /**
-     * @param Page $page
-     */
-    public static function setPage(Page $page){
-        self::$_page = $page;
-    }
-
-    /**
      * @return Page
      */
     public static function getPage(){

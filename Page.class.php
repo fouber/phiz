@@ -11,7 +11,7 @@ abstract class Page extends View {
      * @return string
      */
     protected function loadTemplate(){
-        self::setPage($this);
+        self::$_page = $this;
         return $this->buildPage();
     }
 
