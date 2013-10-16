@@ -89,10 +89,10 @@ class Resource {
                         $map = self::$_maps[$ns] = json_decode(file_get_contents($map_file), true);
                     }
                 } else {
-                    fis_error_reporter('unable to load reource map [' . $map_file . ']');
+                    trigger_error('unable to load reource map [' . $map_file . ']', E_USER_ERROR);
                 }
             } else {
-                fis_error_reporter('undefined resource map dir');
+                trigger_error('undefined resource map dir', E_USER_ERROR);
             }
         }
         return $map['res'][$id];

@@ -1,48 +1,66 @@
 <?php
+/**
+ * User: zhangyunlong
+ * Date: 13-10-15
+ * Time: 下午9:20
+ */
 
 class Layout extends View {
-    
+
     const CSS_PLACEHOLDER = '<!--[FIS_CSS_PLACEHOLDER]-->';
     const JS_PLACEHOLDER = '<!--[FIS_JS_PLACEHOLDER]-->';
+    
+    protected $_has_css_placeholder = false;
+    protected $_has_js_placeholder = false;
 
     /**
-     * @var Layout
+     * @var array
      */
-    private $_parent = null;
+    private static $_loaded_widget = array();
 
     /**
-     * @param $id
-     * @return $this
+     * @param string $id
+     * @return View
      */
-    public function extend($id){
-        if($this->_parent === null){
-            $this->_parent = new self($id, $this->_namespace);
+    public function load($id){
+        if(self::$_loaded_widget[$id]){
+            $clazz = self::$_loaded_widget[$id];
+            return new $clazz($id, $this->_namespace);
         } else {
-            fis_error_reporter('unable to extend multiple layouts');
+            $info = Resource::getInfo($id);
+            if(isset($info['extras']) && isset($info['extras']['clazz'])){
+                $clazz = $info['extras']['clazz'];
+                $this->loadTemplate($info['uri']);
+                self::$_loaded_widget[$id] = $clazz;
+                return new $clazz($id, $this->_namespace);
+            } else {
+                return new self($id, $this->_namespace);
+            }
         }
-        return $this;
-    }
-
-    /**
-     * @param $id
-     * @return Block|null
-     */
-    public function block($id){
-        $block = new self($id, $this->_namespace);
-        $block->setContext($this->_context);
-        return new Block($block->fetch());
     }
     
-    public function widget($id, $context = array()){
-        $widget = Widget::factory($id, $this->_namespace);
-        $widget->setContext($context);
-        return  $widget;
+    public function fetch(){
+        $content = parent::fetch();
+        if($this->_has_css_placeholder){
+            $pos = strpos($content, self::CSS_PLACEHOLDER);
+            if($pos !== false){
+                $content = substr_replace($content, Resource::render('css'), $pos, strlen(self::CSS_PLACEHOLDER));
+            }
+        }
+        if($this->_has_js_placeholder){
+            $pos = strrpos($content, self::JS_PLACEHOLDER);
+            if($pos !== false){
+                $content = substr_replace($content, Resource::render('js'), $pos, strlen(self::JS_PLACEHOLDER));
+            }
+        }
+        return $content;
     }
 
     /**
      * @return string
      */
     public function css(){
+        $this->_has_css_placeholder = true;
         return self::CSS_PLACEHOLDER;
     }
 
@@ -50,37 +68,8 @@ class Layout extends View {
      * @return string
      */
     public function js(){
+        $this->_has_js_placeholder = true;
         return self::JS_PLACEHOLDER;
     }
-
-    /**
-     * 
-     */
-    public function display(){
-        $content = $this->fetch();
-        $pos = strpos($content, self::CSS_PLACEHOLDER);
-        if($pos !== false){
-            $content = substr_replace($content, Resource::render('css'), $pos, strlen(self::CSS_PLACEHOLDER));
-        }
-        $pos = strrpos($content, self::JS_PLACEHOLDER);
-        if($pos !== false){
-            $content = substr_replace($content, Resource::render('js'), $pos, strlen(self::JS_PLACEHOLDER));
-        }
-        echo $content;
-    }
-
-    /**
-     * @return string
-     */
-    public function fetch(){
-        $content = $this->loadTempalte($defs);
-        if($this->_parent){
-            if($content){
-                $defs['body'] = new Block($content);
-            }
-            $this->_parent->assign($defs);
-            $content = $this->_parent->fetch();
-        }
-        return $content;
-    }
+    
 }

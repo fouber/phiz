@@ -1,10 +1,9 @@
 <?php
-
-function fis_error_reporter($msg){
-    echo ob_get_clean();
-    echo ( '<h3>[ERROR] ' . $msg . '</h3>');
-    die();
-}
+/**
+ * User: zhangyunlong
+ * Date: 13-10-15
+ * Time: 下午9:19
+ */
 
 class View {
 
@@ -16,12 +15,12 @@ class View {
     /**
      * @var array
      */
-    private static $_types = array('string','int','bool','float','array');
+    protected $_data = array();
 
     /**
      * @var string
      */
-    protected $_scope = 'protected';
+    protected $_id;
 
     /**
      * @var string
@@ -29,14 +28,9 @@ class View {
     protected $_namespace;
 
     /**
-     * @var null|string
-     */
-    protected $_caller_namespace = null;
-
-    /**
      * @var string
      */
-    protected $_id;
+    protected $_scope = 'protected';
 
     /**
      * @var string
@@ -51,17 +45,13 @@ class View {
     /**
      * @var array
      */
-    protected $_info;
+    protected $_res_info;
 
     /**
-     * @var array
+     * @var null|string
      */
-    protected $_context = array();
-
-    /**
-     * @param string $id
-     * @param string|null $caller_namespace
-     */
+    protected $_caller_namespace = null;
+    
     public function __construct($id, $caller_namespace = null){
         $this->_id = $id;
         $this->_caller_namespace = $caller_namespace;
@@ -72,6 +62,42 @@ class View {
         }
         if(isset($info['deps'])){
             $this->_deps = $info['deps'];
+        }
+    }
+
+    /**
+     * @var array
+     */
+    private static $_global_data = array();
+
+    /**
+     * @param string $id
+     * @param string $key
+     * @param mixed $value
+     */
+    public static function setGlobalData($id, $key, $value){
+        self::$_global_data[$id][$key] = $value;
+    }
+
+    /**
+     * @param string $id
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function getGlobalData($id, $key, $default = null){
+        if(isset(self::$_global_data[$id]) && isset(self::$_global_data[$id][$key])){
+            return self::$_global_data[$id][$key];
+        } else {
+            return $default;
+        }
+    }
+
+    protected function input($key, $default = null){
+        if(isset($this->_data[$key])){
+            return $this->_data[$key];
+        } else {
+            return self::getGlobalData($this->_id, $key, $default);
         }
     }
 
@@ -107,121 +133,35 @@ class View {
     public function import($id, $async = false){
         return Resource::import($id, $async);
     }
-
-    /**
-     * @param mixed $value
-     * @param string $type
-     * @return bool
-     */
-    protected static function typeCheck($value, $type) {
-        if(in_array($type, self::$_types)) {
-            if($type === 'array') {
-                if(!(is_array($value) || $value instanceof ArrayAccess)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } else {
-                $fn = 'is_' . $type;
-                if(!$fn($value)) {
-                    return false;
-                } else {
-                    return true;
-                }
+    
+    public function assign($key, $value = null){
+        if(is_string($key)){
+            $this->_data[$key] = $value;
+        } else if(is_array($key)){
+            foreach($key as $k => $v){
+                $this->assign(strval($k), $v);
             }
         } else {
-            if(!$value instanceof $type) {
-                return false;
-            } else {
-                return true;
-            }
+            trigger_error('invalid input type', E_USER_ERROR);
         }
     }
 
     /**
-     * @param &$stack
+     * @param string $name
+     * @param mixed $arguments
      * @return mixed
      */
-    protected function getInputVarName(&$stack){
-        $stacks = debug_backtrace();
-        $stack = $stacks[1];
-        if(isset($stack)){
-            $script = explode("\n", file_get_contents($stack['file']));
-            $lineNumber = $stack['line'] - 1;
-            $line = $script[$lineNumber];
-            preg_match('/\$this\s*->\s*input\s*\(\s*(\$[a-zA-Z_][a-zA-Z_0-9]*)/', $line, $matches);
-            return $matches[1];
-        }
-        return null;
-    }
-
-    /**
-     * @param mixed &$input
-     * @param string $type
-     * @param mixed $default
-     * @return $this
-     */
-    public function input(&$input, $type, $default = null){
-        if($input === NULL && $default !== null){
-            $input = $default;
-        } else {
-            if($input === null) {
-                $var_name = $this->getInputVarName($stack);
-                if($var_name) {
-                    fis_error_reporter("Missing input '{$var_name}' in file {$stack['file']}, line {$stack['line']}");
-                }
-                fis_error_reporter('Missing required ' . $type . ' input in [' . $this->_id . ']');
-            }
-        }
-        
-        if(!self::typeCheck($input, $type)) {
-            $passed = gettype($input);
-            if($passed === 'object') {
-                $passed = get_class($input);
-            }
-            $var_name = $this->getInputVarName($stack);
-            if($var_name) {
-                fis_error_reporter("Input '{$var_name}' type mismatch, expected: '{$type}', actual: '{$passed}' in file {$stack['file']}, line {$stack['line']}");
-            }
-            fis_error_reporter("Input type mismatch, expected: '$type', actual:'$passed'.");
-        }
+    public function __call($name, $arguments){
+        $value = count($arguments) === 0 ? true : $arguments[0];
+        $this->assign($name, $value);
         return $this;
     }
 
     /**
-     * @return array
+     * @return string
      */
-    protected function getContext(){
-        return $this->_context;
-    }
-
-    /**
-     * @param array $context
-     */
-    protected function setContext($context){
-        if(is_array($context)){
-            $this->_context = $context;
-        } else {
-            fis_error_reporter('invalid context data');
-        }
-    }
-
-    /**
-     * @param string $property
-     * @param mixed $value
-     * @return $this
-     */
-    public function assign($property, $value = null){
-        if(is_string($property)){
-            $this->_context[$property] = $value;
-        } else if(is_array($property)){
-            foreach($property as $k => $v){
-                $this->assign($k, $v);
-            }
-        } else {
-            fis_error_reporter('invalid assign data');
-        }
-        return $this;
+    public function __toString(){
+        return $this->fetch();
     }
 
     /**
@@ -231,7 +171,10 @@ class View {
     public function scope($type){
         $this->_scope = strtolower($type);
     }
-    
+
+    /**
+     * @return bool
+     */
     protected function checkScope(){
         if($this->_caller_namespace){
             switch($this->_scope){
@@ -249,43 +192,32 @@ class View {
                     return true;
                     break;
                 default:
-                    fis_error_reporter('unsupport scope type [' . $this->_scope . ']');
+                    trigger_error('unsupport scope type [' . $this->_scope . ']', E_USER_ERROR);
             }
-            fis_error_reporter("unable to use [{$this->_scope}] resource [{$this->_id}]");
+            trigger_error("unable to use [{$this->_scope}] resource [{$this->_id}]", E_USER_ERROR);
         }
         return false;
     }
 
     /**
+     * @param string $uri
      * @return string
      */
-    public function __toString(){
-        return $this->fetch();
+    protected function loadTemplate($uri = null){
+        $content = '';
+        if(self::$_template_dir){
+            ob_start();
+            include self::$_template_dir . '/' . (isset($uri) ? $uri : $this->_uri);
+            $content = ob_get_clean();
+        } else {
+            trigger_error('undefined template dir', E_USER_ERROR);
+        }
+        return $content;
     }
 
     /**
-     * @param mixed &$__defined_vars__
-     * @return string
+     * 
      */
-    protected function loadTempalte(&$__defined_vars__ = null){
-        if(self::$_template_dir){
-            $this->loadResource();
-            ob_start();
-            try {
-                extract($this->_context);
-                include self::$_template_dir . '/' . $this->_uri;
-                $__defined_vars__ = get_defined_vars();
-            } catch(Exception $e) {
-                fis_error_reporter($e);
-            }
-            $this->checkScope();
-            return ob_get_clean();
-        } else {
-            fis_error_reporter('undefined template dir');
-        }
-        return '';
-    }
-    
     protected function loadResource(){
         if($this->_deps){
             Resource::import($this->_id);
@@ -294,19 +226,20 @@ class View {
     }
 
     /**
-     * @param &$defined_vars
      * @return string
      */
-    public function fetch(&$defined_vars = null){
-        $content = $this->loadTempalte($defined_vars);
+    public function fetch(){
+        $content = $this->loadTemplate();
+        $this->checkScope();
+        $this->loadResource();
         return $content;
     }
 
     /**
-     *
+     * 
      */
     public function display(){
         echo $this->fetch();
     }
-    
+
 }
