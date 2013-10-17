@@ -313,11 +313,14 @@ abstract class View {
      * @return self
      */
     public function load($id){
+        trigger_error($id);
+        $id = preg_replace('/(^.*(\/[^\/.]+))$/', '$1$2.php', $id);
+        trigger_error($id);
+        $info = Resource::getInfo($id, $this->_namespace);
         if(isset(self::$_loaded_widget[$id])){
             $clazz = self::$_loaded_widget[$id];
             return new $clazz($id, $this->_namespace);
         } else {
-            $info = Resource::getInfo($id, $this->_namespace);
             if(isset($info['extras']) && isset($info['extras']['clazz'])){
                 $clazz = $info['extras']['clazz'];
                 self::includeOnce($info['uri']);
