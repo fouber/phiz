@@ -1,4 +1,4 @@
-PHP Template Engine
+Pure PHP Template Engine
 =======
 
 ## Demo
