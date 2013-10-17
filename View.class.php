@@ -5,7 +5,7 @@
  * Time: 下午9:19
  */
 
-abstract class View {
+abstract class PhizView {
 
     /**
      * @var string
@@ -58,7 +58,7 @@ abstract class View {
      */
     public function __construct($id, $caller_namespace = null){
         $this->_caller_namespace = $caller_namespace;
-        $this->_info = $info = Resource::getInfo($id, $caller_namespace, $this->_namespace);
+        $this->_info = $info = PhizResource::getInfo($id, $caller_namespace, $this->_namespace);
         $this->_id = $id;
         $this->_uri = $info['uri'];
         if($this->_namespace === 'common'){
@@ -107,7 +107,7 @@ abstract class View {
      * @return mixed
      */
     public function uri($id){
-        $info = Resource::getInfo($id, $this->_namespace);
+        $info = PhizResource::getInfo($id, $this->_namespace);
         return $info['uri'];
     }
 
@@ -117,7 +117,7 @@ abstract class View {
      * @return string
      */
     public function import($id, $async = false){
-        return Resource::import($id, $this->_namespace, $async);
+        return PhizResource::import($id, $this->_namespace, $async);
     }
 
     /**
@@ -196,7 +196,7 @@ abstract class View {
      */
     protected function loadResource(){
         if($this->_deps){
-            Resource::import($this->_id);
+            PhizResource::import($this->_id);
             unset($this->_deps);
         }
     }
@@ -231,13 +231,13 @@ abstract class View {
         if($this->_used_css_placeholder){
             $pos = strpos($content, self::CSS_PLACEHOLDER);
             if($pos !== false){
-                $content = substr_replace($content, Resource::render('css'), $pos, strlen(self::CSS_PLACEHOLDER));
+                $content = substr_replace($content, PhizResource::render('css'), $pos, strlen(self::CSS_PLACEHOLDER));
             }
         }
         if($this->_used_js_placeholder){
             $pos = strrpos($content, self::JS_PLACEHOLDER);
             if($pos !== false){
-                $content = substr_replace($content, Resource::render('js'), $pos, strlen(self::JS_PLACEHOLDER));
+                $content = substr_replace($content, PhizResource::render('js'), $pos, strlen(self::JS_PLACEHOLDER));
             }
         }
         return $content;
@@ -263,14 +263,14 @@ abstract class View {
      * @param string $name
      */
     public function startScript($name = 'normal'){
-        Resource::startPool($name);
+        PhizResource::startPool($name);
     }
 
     /**
      *
      */
     public function endScript(){
-        Resource::endPool();
+        PhizResource::endPool();
     }
 
     /**
@@ -278,7 +278,7 @@ abstract class View {
      * @return string
      */
     public function script($name = 'normal'){
-        return Resource::renderPool($name);
+        return PhizResource::renderPool($name);
     }
 
     /**
@@ -316,7 +316,7 @@ abstract class View {
         trigger_error($id);
         $id = preg_replace('/(^.*(\/[^\/.]+))$/', '$1$2.php', $id);
         trigger_error($id);
-        $info = Resource::getInfo($id, $this->_namespace);
+        $info = PhizResource::getInfo($id, $this->_namespace);
         if(isset(self::$_loaded_widget[$id])){
             $clazz = self::$_loaded_widget[$id];
             return new $clazz($id, $this->_namespace);

@@ -5,7 +5,7 @@
  * Time: 下午4:21
  */
 
-abstract class Page extends View {
+abstract class PhizPage extends PhizView {
 
     /**
      * @return string
@@ -20,7 +20,7 @@ abstract class Page extends View {
      * @return self|null
      */
     public static function create($id){
-        $info = Resource::getInfo($id);
+        $info = PhizResource::getInfo($id);
         if(isset($info['extras']) && isset($info['extras']['clazz'])){
             self::includeOnce($info['uri']);
             $clazz = $info['extras']['clazz'];
