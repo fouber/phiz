@@ -94,10 +94,6 @@ abstract class PhizView {
     public static function setTemplateDir($template_dir){
         self::$_template_dir = $template_dir;
     }
-    
-    public static function setMapDir($map_dir){
-        PhizResource::setMapDir($map_dir);
-    }
 
     /**
      * @return string
@@ -295,7 +291,7 @@ abstract class PhizView {
     /**
      * @var array
      */
-    private static $_loaded_widget = array();
+    private static $_loaded_view = array();
 
     /**
      * @param string $__uri__
@@ -311,30 +307,37 @@ abstract class PhizView {
         }
         return '';
     }
+    
+    /**
+     * @param string $id
+     * @param string $caller_namespace
+     * @return self|null
+     */
+    public static function factory(&$id, $caller_namespace = null){
+        $info = PhizResource::getInfo($id, $caller_namespace);
+        if(isset(self::$_loaded_view[$id])){
+            $clazz = self::$_loaded_view[$id];
+            return new $clazz($id, $caller_namespace);
+        } else {
+            if(isset($info['extras']) && isset($info['extras']['clazz'])){
+                $clazz = $info['extras']['clazz'];
+                self::includeOnce($info['uri']);
+                self::$_loaded_view[$id] = $clazz;
+                return new $clazz($id, $caller_namespace);
+            } else {
+                trigger_error('Undefined class name of view [' . $id . ']', E_USER_ERROR);
+            }
+        }
+        return null;
+    }
 
     /**
      * @param string $id
      * @return self
      */
     public function load($id){
-        trigger_error($id);
         $id = preg_replace('/(^.*(\/[^\/.]+))$/', '$1$2.php', $id);
-        trigger_error($id);
-        $info = PhizResource::getInfo($id, $this->_namespace);
-        if(isset(self::$_loaded_widget[$id])){
-            $clazz = self::$_loaded_widget[$id];
-            return new $clazz($id, $this->_namespace);
-        } else {
-            if(isset($info['extras']) && isset($info['extras']['clazz'])){
-                $clazz = $info['extras']['clazz'];
-                self::includeOnce($info['uri']);
-                self::$_loaded_widget[$id] = $clazz;
-                return new $clazz($id, $this->_namespace);
-            } else {
-                trigger_error('Undefined class name of widget [' . $id . ']', E_USER_ERROR);
-            }
-        }
-        return null;
+        return self::factory($id, $this->_namespace);
     }
 
     /**
@@ -345,8 +348,15 @@ abstract class PhizView {
     /**
      * @return PhizPage
      */
-    public static function getPage(){
+    protected static function getPage(){
         return self::$_page;
+    }
+
+    /**
+     * @param PhizPage $page
+     */
+    protected static function setPage(PhizPage $page){
+        self::$_page = $page;
     }
 
     /**

@@ -11,23 +11,8 @@ abstract class PhizPage extends PhizView {
      * @return string
      */
     protected function loadTemplate(){
-        self::$_page = $this;
+        self::setPage($this);
         return $this->buildPage();
-    }
-
-    /**
-     * @param $id
-     * @return self|null
-     */
-    public static function create($id){
-        $info = PhizResource::getInfo($id);
-        if(isset($info['extras']) && isset($info['extras']['clazz'])){
-            self::includeOnce($info['uri']);
-            $clazz = $info['extras']['clazz'];
-            return new $clazz($id);
-        }
-        trigger_error("undefined class name of page [{$id}]");
-        return null;
     }
 
     /**
