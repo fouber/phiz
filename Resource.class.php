@@ -54,12 +54,18 @@ class Resource {
 
     /**
      * @param string $id
+     * @param string $def_ns
      * @return string
      */
-    private static function getNamespace($id){
+    private static function getNamespace(&$id, $def_ns = null){
         $pos = strpos($id, ':');
         if($pos === false){
-            return '__global__';
+            if($def_ns === null){
+                $def_ns = '__global__';
+            } else {
+                $id = $def_ns . ':' . $id;
+            }
+            return $def_ns;
         } else {
             return substr($id, 0, $pos);
         }
@@ -67,12 +73,13 @@ class Resource {
 
     /**
      * @param $id
+     * @param $caller_ns
      * @param &$ns
      * @param &$map
      * @return mixed
      */
-    public static function getInfo($id, &$ns = null, &$map = null){
-        $ns = self::getNamespace($id);
+    public static function getInfo(&$id, $caller_ns = null, &$ns = null, &$map = null){
+        $ns = self::getNamespace($id, $caller_ns);
         if(isset(self::$_maps[$ns])){
            $map = self::$_maps[$ns];
         } else {
@@ -103,11 +110,11 @@ class Resource {
         return null;
     }
 
-    public static function import($id, $async = false){
+    public static function import($id, $caller_ns = null, $async = false){
         if(isset(self::$_imported[$id])){
             return self::$_imported[$id];
         } else {
-            $info = self::getInfo($id, $ns, $map);
+            $info = self::getInfo($id, $caller_ns, $ns, $map);
             if($info){
                 $uri = $info['uri'];
                 $type = $info['type'];

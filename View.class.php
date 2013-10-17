@@ -57,9 +57,9 @@ abstract class View {
      * @param string $caller_namespace
      */
     public function __construct($id, $caller_namespace = null){
-        $this->_id = $id;
         $this->_caller_namespace = $caller_namespace;
-        $this->_info = $info = Resource::getInfo($id, $this->_namespace);
+        $this->_info = $info = Resource::getInfo($id, $caller_namespace, $this->_namespace);
+        $this->_id = $id;
         $this->_uri = $info['uri'];
         if($this->_namespace === 'common'){
             $this->_scope = 'public';
@@ -104,11 +104,10 @@ abstract class View {
 
     /**
      * @param string $id
-     * @param string &$ns
      * @return mixed
      */
-    public function uri($id, &$ns = null){
-        $info = Resource::getInfo($id, $ns);
+    public function uri($id){
+        $info = Resource::getInfo($id, $this->_namespace);
         return $info['uri'];
     }
 
@@ -118,7 +117,7 @@ abstract class View {
      * @return string
      */
     public function import($id, $async = false){
-        return Resource::import($id, $async);
+        return Resource::import($id, $this->_namespace, $async);
     }
 
     /**
@@ -318,7 +317,7 @@ abstract class View {
             $clazz = self::$_loaded_widget[$id];
             return new $clazz($id, $this->_namespace);
         } else {
-            $info = Resource::getInfo($id);
+            $info = Resource::getInfo($id, $this->_namespace);
             if(isset($info['extras']) && isset($info['extras']['clazz'])){
                 $clazz = $info['extras']['clazz'];
                 self::includeOnce($info['uri']);
