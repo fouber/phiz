@@ -94,6 +94,10 @@ abstract class PhizView {
     public static function setTemplateDir($template_dir){
         self::$_template_dir = $template_dir;
     }
+    
+    public static function setMapDir($map_dir){
+        PhizResource::setMapDir($map_dir);
+    }
 
     /**
      * @return string
