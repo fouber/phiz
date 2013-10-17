@@ -22,4 +22,6 @@ Phiz::page('foo:page/Index.class.php')->user('fouber')->display();
 
 ## Page extend View
 
+## Build Tool
+
 * [phiz](https://github.com/fouber/phiz)
