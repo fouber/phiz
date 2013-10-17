@@ -334,12 +334,12 @@ abstract class PhizView {
     }
 
     /**
-     * @var Page
+     * @var PhizPage
      */
     protected static $_page;
 
     /**
-     * @return Page
+     * @return PhizPage
      */
     public static function getPage(){
         return self::$_page;
