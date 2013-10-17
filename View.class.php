@@ -314,7 +314,7 @@ abstract class View {
      * @return self
      */
     public function load($id){
-        if(self::$_loaded_widget[$id]){
+        if(isset(self::$_loaded_widget[$id])){
             $clazz = self::$_loaded_widget[$id];
             return new $clazz($id, $this->_namespace);
         } else {

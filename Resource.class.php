@@ -95,7 +95,12 @@ class Resource {
                 trigger_error('undefined resource map dir', E_USER_ERROR);
             }
         }
-        return $map['res'][$id];
+        if(isset($map['res'][$id])){
+            return $map['res'][$id];
+        } else {
+            trigger_error('undefined resource [' . $id . ']', E_USER_ERROR);
+        }
+        return null;
     }
 
     public static function import($id, $async = false){
