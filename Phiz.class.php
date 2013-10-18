@@ -12,7 +12,6 @@ require_once $root . '/Resource.class.php';
 
 class Phiz {
 
-
     /**
      * @param $id
      * @return self|null
@@ -20,12 +19,17 @@ class Phiz {
     public static function page($id){
         return PhizView::factory($id);
     }
-    
+
+    /**
+     * @param string $template_dir
+     */
     public static function setTemplateDir($template_dir){
         PhizView::setTemplateDir($template_dir);
     }
 
-
+    /**
+     * @param string $map_dir
+     */
     public static function setMapDir($map_dir){
         PhizResource::setMapDir($map_dir);
     }
