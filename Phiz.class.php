@@ -17,7 +17,11 @@ class Phiz {
      * @return self|null
      */
     public static function page($id){
-        return PhizView::factory($id);
+        $page = PhizView::factory($id);
+        if(!($page instanceof PhizPage)){
+            trigger_error('unable to load [' . $id . '] as a Page instance');
+        }
+        return $page;
     }
 
     /**
