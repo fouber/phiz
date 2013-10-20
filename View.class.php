@@ -207,7 +207,9 @@ abstract class PhizView {
      */
     protected function loadResource(){
         if($this->_deps){
-            PhizResource::import($this->_id);
+            foreach($this->_deps as $id){
+                PhizResource::import($id);
+            }
             $this->_deps = null;
         }
     }
