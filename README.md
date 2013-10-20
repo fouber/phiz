@@ -3,25 +3,49 @@ Pure PHP Template Engine
 
 ## Demo
 
-* ``TODO``
+* [phiz-demo](https://github.com/fouber/phiz-demo)
 
 ## Quick Start
 
 index.php
 
 ```php
-require_once 'phiz/Phiz.class.php';
-
+<?php
+require_once 'phiz/View.class.php';
 $dir = dirname(__FILE__);
-Phiz::setTemplateDir($dir . '/template');
-Phiz::setMapDir($dir . '/map');
-Phiz::page('foo:page/Index.class.php')->user('fouber')->display();
+PhizView::setTemplateDir($dir . '/template');
+PhizView::setMapDir($dir . '/map');
+//init page and display
+PhizView::page('foo-bar:page/Index.class.php')->display();
 ```
 
-## View
+## PhizView
+
+> a widget or block
+
+source (php style):
+
+```php
+<?php
+
+    //static resources
+    $this->import('lib/jquery/jquery.js');
+    $this->import('lib/bootstrap/bootstrap.css');
+
+    //access permission
+    $this->scope('private');
+    
+    //inputs
+    $content = $this->input('content', 'hello world');
+
+?>
+<!-- html of view -->
+<div><?php echo $content; ?></div>
+```
 
 ## Page extend View
 
-## Build Tool
+## Learn More
 
-* [phiz](https://github.com/fouber/phiz)
+* [sdk](https://github.com/fouber/phiz-tool)
+* [demo](https://github.com/fouber/phiz-demo)
