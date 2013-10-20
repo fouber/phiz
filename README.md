@@ -23,7 +23,7 @@ PhizView::page('foo-bar:page/Index.class.php')->display();
 
 > a widget or block
 
-source (php style):
+source code (php style):
 
 ```php
 <?php
@@ -41,6 +41,35 @@ source (php style):
 ?>
 <!-- html of view -->
 <div><?php echo $content; ?></div>
+```
+
+source code (php class style)
+
+```php
+<?php
+
+class Foo_Widget_Bar extends PhizView
+{
+
+    protected function init()
+    {
+        //static resources
+        $this->import('lib/jquery/jquery.js');
+        $this->import('lib/bootstrap/bootstrap.css');
+    
+        //access permission
+        $this->scope('private');
+    }
+    
+    protected function loadTemplate()
+    {
+        //inputs
+        $content = $this->input('content', 'hello world');
+        $html  = '<!-- html of view -->';
+        $html .= "<div>{$content}</div>";
+        return $html;
+    }
+}
 ```
 
 ## Page extend View
