@@ -5,6 +5,10 @@
  * Time: 下午9:19
  */
 
+$root = dirname(__FILE__);
+require_once $root . '/Page.class.php';
+require_once $root . '/Resource.class.php';
+
 abstract class PhizView {
 
     /**
@@ -100,6 +104,13 @@ abstract class PhizView {
      */
     public static function getTemplateDir(){
         return self::$_template_dir;
+    }
+
+    /**
+     * @param string $map_dir
+     */
+    public static function setMapDir($map_dir){
+        PhizResource::setMapDir($map_dir);
     }
 
     /**
@@ -295,40 +306,49 @@ abstract class PhizView {
 
     /**
      * @param string $__uri__
-     * @return string
      */
-    protected static function includeOnce($__uri__){
-        if(self::$_template_dir){
-            ob_start();
-            include_once self::$_template_dir . '/' . $__uri__;
-            return ob_get_clean();
-        } else {
-            trigger_error('undefined template dir', E_USER_ERROR);
-        }
-        return '';
+    private static function _include($__uri__){
+        ob_start();
+        include_once $__uri__;
+        ob_end_clean();
     }
-    
+
     /**
      * @param string $id
      * @param string $caller_namespace
-     * @return self|null
+     * @return string|null
      */
-    public static function factory(&$id, $caller_namespace = null){
+    private static function _includeOnce(&$id, $caller_namespace = null){
+        $id = preg_replace('/(^.*(\/[^\/.]+))$/', '$1$2.php', $id);
         $info = PhizResource::getInfo($id, $caller_namespace);
         if(isset(self::$_loaded_view[$id])){
-            $clazz = self::$_loaded_view[$id];
-            return new $clazz($id, $caller_namespace);
+            return self::$_loaded_view[$id];
         } else {
-            if(isset($info['extras']) && isset($info['extras']['clazz'])){
-                $clazz = $info['extras']['clazz'];
-                self::includeOnce($info['uri']);
-                self::$_loaded_view[$id] = $clazz;
-                return new $clazz($id, $caller_namespace);
+            $clazz = $info['extras']['clazz'];
+            if(self::$_template_dir){
+                self::_include(self::$_template_dir . '/' . $info['uri']);
             } else {
-                trigger_error('Undefined class name of view [' . $id . ']', E_USER_ERROR);
+                trigger_error('undefined template dir', E_USER_ERROR);
             }
+            return $clazz;
         }
-        return null;
+    }
+    
+    public static function includeOnce($id){
+        return self::_includeOnce($id);
+    }
+
+    /**
+     * @param $id
+     * @return self|null
+     */
+    public static function page($id){
+        $clazz = self::_includeOnce($id);
+        $page = new $clazz($id);
+        if(!($page instanceof PhizPage)){
+            trigger_error('unable to load [' . $id . '] as a PhizPage instance', E_USER_ERROR);
+        }
+        return $page;
     }
 
     /**
@@ -336,8 +356,15 @@ abstract class PhizView {
      * @return self
      */
     public function load($id){
-        $id = preg_replace('/(^.*(\/[^\/.]+))$/', '$1$2.php', $id);
-        return self::factory($id, $this->_namespace);
+        $clazz = self::_includeOnce($id, $this->_namespace);
+        $view = new $clazz($id, $this->_namespace);
+        if($view instanceof PhizPage){
+            trigger_error('unble to load PhizPage object [' . $id . '] as PhizView instance.');
+        } else if(!($view instanceof PhizView)){
+            $clazz = get_class($view);
+            trigger_error('unable to load ' . $clazz . ' object [' . $id . '] as PhizView instance.');
+        }
+        return $view;
     }
 
     /**
