@@ -6,7 +6,6 @@
  */
 
 $root = dirname(__FILE__);
-require_once $root . '/Page.class.php';
 require_once $root . '/Resource.class.php';
 
 abstract class PhizView {
@@ -347,9 +346,10 @@ abstract class PhizView {
     public static function page($id){
         $clazz = self::_includeOnce($id);
         $page = new $clazz($id);
-        if(!($page instanceof PhizPage)){
-            trigger_error('unable to load [' . $id . '] as a PhizPage instance', E_USER_ERROR);
+        if(!($page instanceof self)){
+            trigger_error('unable to load [' . $id . '] as a PhizView instance', E_USER_ERROR);
         }
+        self::setPage($page);
         return $page;
     }
 
@@ -360,9 +360,7 @@ abstract class PhizView {
     public function load($id){
         $clazz = self::_includeOnce($id, $this->_namespace);
         $view = new $clazz($id, $this->_namespace);
-        if($view instanceof PhizPage){
-            trigger_error('unble to load PhizPage object [' . $id . '] as PhizView instance.');
-        } else if(!($view instanceof PhizView)){
+        if(!($view instanceof PhizView)){
             $clazz = get_class($view);
             trigger_error('unable to load ' . $clazz . ' object [' . $id . '] as PhizView instance.');
         }
@@ -370,21 +368,21 @@ abstract class PhizView {
     }
 
     /**
-     * @var PhizPage
+     * @var self
      */
     protected static $_page;
 
     /**
-     * @return PhizPage
+     * @return self
      */
     protected static function getPage(){
         return self::$_page;
     }
 
     /**
-     * @param PhizPage $page
+     * @param self $page
      */
-    protected static function setPage(PhizPage $page){
+    protected static function setPage(self $page){
         self::$_page = $page;
     }
 
