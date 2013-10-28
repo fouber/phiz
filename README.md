@@ -21,7 +21,7 @@ PhizView::page('foo-bar:page/Index.class.php')->display();
 
 ## PhizView
 
-> a widget or block
+> Everything is PhizView, such as widget, block and page.
 
 source code (php style):
 
@@ -74,8 +74,6 @@ class Foo_Widget_Bar extends PhizView
 
 ## API Documentation
 
-### PhizView
-
 * [input($key, $default = null)](https://github.com/fouber/phiz-demo/blob/master/common/layout/skeleton/skeleton.php#L12-L15): get inputs
 * [import($id)](https://github.com/fouber/phiz-demo/blob/master/common/layout/skeleton/skeleton.php#L3-L6): require static resources.
 * [load($id)](https://github.com/fouber/phiz-demo/blob/master/common/layout/skeleton/skeleton.php#L21): load other view.
@@ -88,10 +86,18 @@ class Foo_Widget_Bar extends PhizView
 * [display()](https://github.com/fouber/phiz-demo/blob/master/foo-bar/index.php#L11): echo rendered html
 * [fetch()](https://github.com/fouber/phiz-demo/blob/master/foo-bar/page/Index.class.php#L21): return rendered html
 * [getPageData($key, $default)](https://github.com/fouber/phiz-demo/blob/master/common/layout/skeleton/skeleton.php#L12): get data from the unique PhizPage instance.
+* [loadTemplate()](https://github.com/fouber/phiz-demo/blob/master/foo-bar/page/Index.class.php#L12-L29): ``abstract``, return rendered html.
 
-### PhizPage extend PhizView
+## Development concepts
 
-* [buildPage()](https://github.com/fouber/phiz-demo/blob/master/foo-bar/page/Index.class.php#L7-L22): abstract, return page rendered html.
+* Page:
+
+    * https://github.com/fouber/phiz-demo/blob/master/foo-bar/page/Index.class.php
+    * https://github.com/fouber/phiz-demo/blob/master/foo/page/Index.class.php
+
+* Block: https://github.com/fouber/phiz-demo/tree/master/foo/block/main
+
+* Widget: https://github.com/fouber/phiz-demo/tree/master/foo/widget/banner
 
 ## Learn More
 
