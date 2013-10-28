@@ -71,7 +71,6 @@ abstract class PhizView {
         if(isset($info['deps'])){
             $this->_deps = $info['deps'];
         }
-        $this->init();
     }
 
     /**
@@ -238,6 +237,7 @@ abstract class PhizView {
      * @return string
      */
     public function fetch(){
+        $this->init();
         $content = $this->loadTemplate();
         $this->checkScope();
         $this->loadResource();

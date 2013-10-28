@@ -12,6 +12,7 @@ abstract class PhizPage extends PhizView {
      */
     protected function loadTemplate(){
         self::setPage($this);
+        $this->init();
         return $this->buildPage();
     }
 
