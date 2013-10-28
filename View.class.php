@@ -393,13 +393,28 @@ abstract class PhizView {
      * @param mixed $default
      * @return mixed|null
      */
-    public function getPageData($key, $default){
+    public function getPageData($key, $default = null){
         if(self::$_page){
-            return self::$_page->input($key, $default);
+            $keys = explode('.', $key);
+            $len = count($keys);
+            if(empty($keys[0])){
+                trigger_error('invalid input property', E_USER_ERROR);
+            } else {
+                $data = self::$_page->input($keys[0], $default);
+                for($i = 1; $i < $len; $i++){
+                    $key = $keys[$i];
+                    if(isset($data[$key])){
+                        $data = $data[$key];
+                    } else {
+                        return $default;
+                    }
+                }
+                return $data;
+            }
         } else {
-            trigger_error('missing page instance');
+            trigger_error('missing page instance', E_USER_ERROR);
         }
-        return null;
+        return $default;
     }
 
     /**
