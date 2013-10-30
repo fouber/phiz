@@ -325,6 +325,9 @@ abstract class PhizView {
         if(isset(self::$_loaded_view[$id])){
             return self::$_loaded_view[$id];
         } else {
+            if(isset($info['extend'])){
+                self::_includeOnce($info['extend'], $caller_namespace);
+            }
             $clazz = $info['extras']['clazz'];
             if(self::$_template_dir){
                 self::_include(self::$_template_dir . '/' . $info['uri']);
